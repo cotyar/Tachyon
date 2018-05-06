@@ -16,11 +16,17 @@ namespace Tachyon.Core
         private static readonly Action<string> write = Console.Write;
         private static readonly Action<string> writeLine = Console.WriteLine;
 
+        /// <summary>
+        /// Plain old <see cref="Console.Write(String)"/> with safe coloring scheme.
+        /// </summary>
         public static void Write(string text, ConsoleColor color = ConsoleColor.White)
         {
             Wrapped(color, text, write);
         }
 
+        /// <summary>
+        /// Plain old <see cref="Console.WriteLine(String)"/> with safe coloring scheme.
+        /// </summary>
         public static void WriteLine(string text, ConsoleColor color = ConsoleColor.White)
         {
             Wrapped(color, text, writeLine);
@@ -47,7 +53,7 @@ namespace Tachyon.Core
                     {
                         try
                         {
-                            Console.BackgroundColor = previousColor;
+                            Console.ForegroundColor = previousColor;
                         }
                         catch (Exception) { }
                     }
