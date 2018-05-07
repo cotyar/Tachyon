@@ -19,9 +19,9 @@ namespace Tachyon.Testing.Simulators
     public sealed class SimScheduler : TaskScheduler
     {
         private readonly string name;
-        private readonly SimEnvironment env;
+        private readonly Simulation env;
 
-        public SimScheduler(string name, SimEnvironment env)
+        public SimScheduler(string name, Simulation env)
         {
             this.name = name;
             this.env = env;

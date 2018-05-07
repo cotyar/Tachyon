@@ -6,6 +6,8 @@
 // -----------------------------------------------------------------------
 #endregion
 
+using System;
+
 namespace Tachyon.Core
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Tachyon.Core
     /// 3. Idempotency: x • x = x
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IConvergent<T>
+    public interface IConvergent<T> : IEquatable<T>
     {
         T Merge(T other);
     }

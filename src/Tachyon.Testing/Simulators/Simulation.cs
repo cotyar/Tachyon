@@ -1,6 +1,6 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
-//  <copyright file="SimEnvironment.cs" creator="Bartosz Sypytkowski">
+//  <copyright file="Simulation.cs" creator="Bartosz Sypytkowski">
 //      Copyright (C) 2018 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
@@ -18,7 +18,7 @@ namespace Tachyon.Testing.Simulators
     /// Environment representing a state-of-a-world during a simulation. It encapsulates
     /// things like different actor runtimes, task schedulers, network access etc.
     /// </summary>
-    public sealed class SimEnvironment
+    public sealed class Simulation
     {
         #region queueing
 
@@ -63,18 +63,18 @@ namespace Tachyon.Testing.Simulators
 
         #endregion
 
-        private readonly SimEnvironmentSettings settings;
+        private readonly SimulationSettings settings;
         private readonly ExecutionQueue executionQueue = new ExecutionQueue();
         private readonly SimScheduler mainScheduler;
         private readonly TaskFactory taskFactory;
 
         private bool halt = false;
 
-        public SimEnvironment() : this(SimEnvironmentSettings.Default)
+        public Simulation() : this(SimulationSettings.Default)
         {
         }
 
-        public SimEnvironment(SimEnvironmentSettings settings)
+        public Simulation(SimulationSettings settings)
         {
             this.settings = settings;
             this.mainScheduler = new SimScheduler("sim:main", this);

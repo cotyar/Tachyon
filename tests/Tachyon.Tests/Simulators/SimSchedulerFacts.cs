@@ -18,11 +18,11 @@ namespace Tachyon.Tests.Simulators
 {
     public class SimSchedulerFacts
     {
-        private readonly SimEnvironment env;
+        private readonly Simulation env;
 
         public SimSchedulerFacts(ITestOutputHelper output)
         {
-            env = new SimEnvironment(SimEnvironmentSettings.Default.WithLog(output.WriteLine));
+            env = new Simulation(SimulationSettings.Default.WithLog(output.WriteLine));
         }
 
         [Fact]

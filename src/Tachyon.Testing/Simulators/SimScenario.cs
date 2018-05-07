@@ -17,9 +17,9 @@ namespace Tachyon.Testing.Simulators
     /// </summary>
     public sealed class SimScenario
     {
-        private readonly SimEnvironment env;
+        private readonly Simulation env;
 
-        internal SimScenario(SimEnvironment env)
+        internal SimScenario(Simulation env)
         {
             this.env = env;
         }

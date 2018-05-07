@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="4.3.4" />
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.0-preview2-final" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0-preview2-final" />
     <PackageReference Include="Reactive.Streams" Version="1.0.2" />

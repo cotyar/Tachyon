@@ -14,9 +14,8 @@ namespace Tachyon.Core
     /// Hybrid logical time, used to enhance partially comparable <see cref="VectorTime"/> mechanics with ability to 
     /// use local system clock in order to resolve potential happen-before relationship, once a concurrent update has been detected.
     /// </summary>
-    [Immutable]
-    [Serializable]
-    public readonly struct HybridTime : IComparable<HybridTime>, IEquatable<HybridTime>, IConvergent<HybridTime>
+    [Immutable, Serializable]
+    public readonly struct HybridTime : IComparable<HybridTime>, IConvergent<HybridTime>
     {
         public static readonly HybridTime Zero = new HybridTime(DateTime.MinValue, VectorTime.Zero);
 

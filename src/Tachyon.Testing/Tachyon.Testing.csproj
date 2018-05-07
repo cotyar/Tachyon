@@ -17,8 +17,4 @@
     <ProjectReference Include="..\Tachyon.Core\Tachyon.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Traits\" />
-  </ItemGroup>
-
 </Project>
