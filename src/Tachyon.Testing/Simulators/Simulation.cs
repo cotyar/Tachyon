@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Tachyon.Core;
@@ -83,9 +84,13 @@ namespace Tachyon.Testing.Simulators
 
         public DateTime CurrentTime { get; private set; } = DateTime.UtcNow;
 
-        public void Schedule([NotNull]Task task, [NotNull]SimScheduler scheduler)
+        public void Schedule([NotNull]Task task, [NotNull]SimScheduler scheduler, [NotNull]TimeSpan delay = default)
         {
-            executionQueue.Schedule(CurrentTime, task, scheduler);
+            var pointInTime = delay == Timeout.InfiniteTimeSpan
+                ? DateTime.MaxValue
+                : CurrentTime + delay;
+            
+            executionQueue.Schedule(pointInTime, task, scheduler);
         }
 
         public void Log(string text) => settings.Log(text);
@@ -108,12 +113,13 @@ namespace Tachyon.Testing.Simulators
 
             while (!halt && executionQueue.TryGetNext(out var workItem))
             {
+                CurrentTime = workItem.PointInTime;
                 workItem.Scheduler.Execute(workItem.Task);
             }
         }
     }
 
-    public struct WorkItem
+    public readonly struct WorkItem
     {
         public readonly SimScheduler Scheduler;
         public readonly DateTime PointInTime;

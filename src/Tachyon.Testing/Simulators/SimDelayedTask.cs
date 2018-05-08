@@ -12,19 +12,24 @@ using System.Threading.Tasks;
 
 namespace Tachyon.Testing.Simulators
 {
-    sealed class SimDelayedTask : Task
+    interface IDelayedExecution
     {
-        public TimeSpan Delay { get; }
+        TimeSpan Deadline { get; }
+    }
+
+    sealed class SimDelayedTask : Task, IDelayedExecution
+    {
+        public TimeSpan Deadline { get; }
         public CancellationToken CancellationToken { get; }
 
-        public SimDelayedTask(TimeSpan delay, CancellationToken cancellationToken)
+        public SimDelayedTask(TimeSpan deadline, CancellationToken cancellationToken)
             : base(() =>
             {
                 if (cancellationToken.IsCancellationRequested)
                     throw new TaskCanceledException();
             })
         {
-            Delay = delay;
+            Deadline = deadline;
             CancellationToken = cancellationToken;
         }
     }

@@ -116,7 +116,6 @@ namespace Tachyon.Core.Reflection
             }
 
             throw new KeyNotFoundException($"The given key '{key.ToString()}' was not present in the dictionary.");
-            return default;
         }
 
         private bool TryGetArrayValue(Type key, out TValue value)

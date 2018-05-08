@@ -28,7 +28,7 @@ namespace Tachyon.Testing.Simulators
                 throw new TaskCanceledException();
         })
         {
-            // We don't pass the token to the base task. Just like with Task.Delay
+            // We don't pass the token to the base task. Just like with Task.Deadline
             // we want the task to blow up on awaiter, instead of simply
             // stopping further execution.
             this.token = token;

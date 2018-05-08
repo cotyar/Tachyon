@@ -49,7 +49,14 @@ namespace Tachyon.Testing.Simulators
 
         protected override void QueueTask(Task task)
         {
-            env.Schedule(task, this);
+            if (task is IDelayedExecution delayed)
+            {
+                env.Schedule(task, this, delayed.Deadline);
+            }
+            else
+            {
+                env.Schedule(task, this);
+            }
         }
 
         protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => TryExecuteTask(task);

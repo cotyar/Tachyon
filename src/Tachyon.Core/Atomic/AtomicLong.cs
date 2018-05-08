@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Tachyon.Core.Atomic
 {
-    public struct AtomicLong : IAtomic<long>
+    public sealed class AtomicLong : IAtomic<long>
     {
         private long value;
 

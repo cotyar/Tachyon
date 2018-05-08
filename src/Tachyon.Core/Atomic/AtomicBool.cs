@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Tachyon.Core.Atomic
 {
-    public struct AtomicBool : IAtomic<bool>
+    public sealed class AtomicBool : IAtomic<bool>
     {
         private const int TRUE = 1;
         private const int FALSE = 0;

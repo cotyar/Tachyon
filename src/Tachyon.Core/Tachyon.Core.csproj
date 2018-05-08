@@ -8,6 +8,10 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="%2a%2a\**" />
     <EmbeddedResource Remove="%2a%2a\**" />
@@ -23,6 +27,10 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0-preview2-26406-04" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0-preview2-26406-04" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Collections\Convergent\" />
   </ItemGroup>
 
 </Project>

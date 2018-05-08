@@ -10,8 +10,7 @@ using System.Threading;
 
 namespace Tachyon.Core.Atomic
 {
-
-    public struct AtomicRef<T> : IAtomic<T> where T : class
+    public sealed class AtomicRef<T> : IAtomic<T> where T : class
     {
         private T value;
 
