@@ -25,14 +25,14 @@ namespace Tachyon.Testing.Simulators
 
         private sealed class ExecutionQueue
         {
-            private readonly SortedList<DateTime, Queue<(SimScheduler, Task)>> executions = new SortedList<DateTime, Queue<(SimScheduler, Task)>>();
+            private readonly SortedList<DateTime, Queue<(SimScheduler, Task)>> timeline = new SortedList<DateTime, Queue<(SimScheduler, Task)>>();
 
             public void Schedule(DateTime pointInTime, [NotNull]Task task, [NotNull]SimScheduler scheduler)
             {
-                if (!executions.TryGetValue(pointInTime, out var queue))
+                if (!timeline.TryGetValue(pointInTime, out var queue))
                 {
                     queue = new Queue<(SimScheduler, Task)>();
-                    executions.Add(pointInTime, queue);
+                    timeline.Add(pointInTime, queue);
                 }
 
                 queue.Enqueue((scheduler, task));
@@ -40,7 +40,7 @@ namespace Tachyon.Testing.Simulators
 
             public bool TryGetNext(out WorkItem workItem)
             {
-                foreach (var (time, queue) in executions)
+                foreach (var (time, queue) in timeline)
                 {
                     if (queue.Count != 0)
                     {
@@ -50,7 +50,7 @@ namespace Tachyon.Testing.Simulators
                         // cleanup
                         if (queue.Count == 0)
                         {
-                            executions.Remove(time);
+                            timeline.Remove(time);
                         }
 
                         return true;

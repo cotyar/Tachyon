@@ -14,12 +14,12 @@ namespace Tachyon.Testing.Simulators
 {
     public class SimTimer : ITimer
     {
-        public void Schedule<M>(TimeSpan delay, IRef<M> target, M message, CancellationToken token = default(CancellationToken))
+        public void Schedule<M>(TimeSpan delay, IVar<M> target, M message, CancellationToken token = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public void Schedule<M>(TimeSpan delay, TimeSpan interval, IRef<M> target, M message, CancellationToken token = default(CancellationToken))
+        public void Schedule<M>(TimeSpan delay, TimeSpan interval, IVar<M> target, M message, CancellationToken token = default(CancellationToken))
         {
             throw new NotImplementedException();
         }

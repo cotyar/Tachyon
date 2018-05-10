@@ -63,25 +63,27 @@ namespace Tachyon.Actors
     /// <summary>
     /// Addressable interface allows to send signal to any actor.
     /// </summary>
-    public interface IAddressable
+    public interface IAddressable : IComparable<IAddressable>, IEquatable<IAddressable>, IConsistentlyHashable
     {
-        void Send(ISignal signal);
     }
 
     /// <summary>
-    /// Refs are serializable pointers to a target actor instance, no matter where
-    /// in the cluster does it live.
+    /// A reference to an addressable resource accessible in distributed ecosystem:
+    /// an actor, stream, key-value store entry etc.
     /// </summary>
+    /// <remarks>
+    /// Do not confuse this with IVar data type from Concurrent ML.
+    /// </remarks>
     /// <typeparam name="M"></typeparam>
-    public interface IRef<in M> : IAddressable
+    public interface IVar<in M> : IAddressable
     {
-        void Send(M message);
+        IVar<N> Narrow<N>() where N : M;
     }
     
     public interface ITimer : IDisposable
     {
-        void Schedule<M>(TimeSpan delay, IRef<M> target, M message, CancellationToken token = default(CancellationToken));
-        void Schedule<M>(TimeSpan delay, TimeSpan interval, IRef<M> target, M message, CancellationToken token = default(CancellationToken));
+        void Schedule<M>(TimeSpan delay, IVar<M> target, M message, CancellationToken token = default(CancellationToken));
+        void Schedule<M>(TimeSpan delay, TimeSpan interval, IVar<M> target, M message, CancellationToken token = default(CancellationToken));
     }
 
     public interface ICell : IAsyncDisposable
@@ -90,6 +92,7 @@ namespace Tachyon.Actors
         IActorRuntime Runtime { get; }
         ValueTask<Unit> Stop();
         void Unhandled(object messageOrSignal);
+        void Send(ISignal signal); //TODO: use custom awaiter to release thread control i.e. when mailbox is full
     }
 
     /// <summary>
@@ -99,15 +102,16 @@ namespace Tachyon.Actors
     /// <typeparam name="M">Type of the associated actor's protocol messages.</typeparam>
     public interface ICell<S, M> : ICell
     {
-        new IRef<M> Self { get; }
+        new IVar<M> Self { get; }
         S State { get; }
+        void Send(M message); //TODO: use custom awaiter to release thread control i.e. when mailbox is full
     }
     
     public interface IActorRuntime : IAsyncDisposable, IHostedService
     {
         ITimer Timer { get; }
         TaskScheduler TaskScheduler { get; }
-        IRef<DeadLetter> DeadLetters { get; }
+        IVar<DeadLetter> DeadLetters { get; }
 
         Task StartAsync(CancellationToken token = default(CancellationToken));
     }

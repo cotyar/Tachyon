@@ -16,7 +16,7 @@ namespace Tachyon.Actors
     {
         public ITimer Timer { get; }
         public TaskScheduler TaskScheduler { get; }
-        public IRef<DeadLetter> DeadLetters { get; }
+        public IVar<DeadLetter> DeadLetters { get; }
 
         public void Dispose()
         {
