@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Extensions;
@@ -57,6 +58,43 @@ namespace Tachyon.Tests.Simulators
                 stopwatch.Stop();
                 stopwatch.ElapsedMilliseconds.Should().BeLessThan(100);
             });
+        }
+
+        [Fact]
+        public void SimScheduler_should_apply_delays_during_task_execution()
+        {
+            async Task<int> Delayed(SimScenario scenario)
+            {
+                await scenario.Delay(1.Hours());
+                return 1;
+            }
+
+            env.Run(async scenario =>
+            {
+                var delayed = Delayed(scenario);
+                var immediate = new Task<int>(() => 2);
+                var result = await Task.WhenAny(delayed, immediate);
+
+                result.Should().Be(immediate);
+                (await result).Should().Be(2);
+            });
+        }
+
+        [Fact]
+        public void SimScheduler_should_work_with_cancelled_delays()
+        {
+            Action action = () => env.Run(async scenario =>
+            {
+                var cancel = new CancellationTokenSource(1.Seconds());
+                var now = env.CurrentTime;
+
+                await scenario.Delay(1.Hours(), cancel.Token);
+
+                var passed = now - env.CurrentTime;
+                passed.Should().BeLessThan(1.Hours());
+            });
+
+            action.Should().Throw<TaskCanceledException>();
         }
     }
 }

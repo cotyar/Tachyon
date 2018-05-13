@@ -6,9 +6,11 @@
 // -----------------------------------------------------------------------
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Tachyon.Core;
 
 namespace Tachyon.Actors
 {
@@ -16,7 +18,13 @@ namespace Tachyon.Actors
     {
         public ITimer Timer { get; }
         public TaskScheduler TaskScheduler { get; }
-        public IVar<DeadLetter> DeadLetters { get; }
+        public Var<DeadLetter> DeadLetters { get; }
+        public Random Random => SafeRandom.Current;
+
+        public DateTime UtcNow()
+        {
+            throw new NotImplementedException();
+        }
 
         public void Dispose()
         {

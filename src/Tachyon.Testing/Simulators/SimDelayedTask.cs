@@ -12,7 +12,12 @@ using System.Threading.Tasks;
 
 namespace Tachyon.Testing.Simulators
 {
-    interface IDelayedExecution
+    interface INotifyCancellation
+    {
+        bool IsCancellationRequested { get; }
+    }
+
+    interface IDelayedExecution : INotifyCancellation
     {
         TimeSpan Deadline { get; }
     }
@@ -21,6 +26,7 @@ namespace Tachyon.Testing.Simulators
     {
         public TimeSpan Deadline { get; }
         public CancellationToken CancellationToken { get; }
+        public bool IsCancellationRequested => CancellationToken.IsCancellationRequested;
 
         public SimDelayedTask(TimeSpan deadline, CancellationToken cancellationToken)
             : base(() =>

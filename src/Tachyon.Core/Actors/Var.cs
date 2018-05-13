@@ -12,11 +12,14 @@ using Tachyon.Core.Actors.Mailboxes;
 namespace Tachyon.Actors
 {
     /// <summary>
-    /// Internal implementation of <see cref="IVar{M}"/> interface used to
-    /// optimize access to a locally available resources.
+    /// A reference to an addressable resource accessible in distributed ecosystem:
+    /// an actor, stream, key-value store entry etc.
     /// </summary>
+    /// <remarks>
+    /// Do not confuse this with IVar data type from Concurrent ML.
+    /// </remarks>
     /// <typeparam name="M"></typeparam>
-    public sealed class Var<M> : IVar<M>
+    public sealed class Var<M>
     {
         private readonly string key;
 
@@ -34,9 +37,9 @@ namespace Tachyon.Actors
 
         public string Key => key;
 
-        internal void SendMessage(M message, IActorRuntime runtime)
+        internal void Send(M message, IActorRuntime runtime)
         {
-            if (channel == null)
+            if (channel == null || channel.IsDisposed)
             {
                 //TODO: retrieve channel from the runtime
             }
@@ -44,17 +47,17 @@ namespace Tachyon.Actors
             channel.Send(message);
         }
 
-        internal void SendSignal(ISignal signal, IActorRuntime runtime)
+        internal void Signal(ISignal signal, IActorRuntime runtime)
         {
-            if (channel == null)
+            if (channel == null || channel.IsDisposed)
             {
                 //TODO: retrieve channel from the runtime
             }
 
-            channel.Send(signal);
+            channel.Signal(signal);
         }
 
-        public IVar<N> Narrow<N>() where N : M
+        public Var<N> Narrow<N>() where N : M
         {
             throw new System.NotImplementedException();
         }
@@ -77,7 +80,8 @@ namespace Tachyon.Actors
 
     interface IChannel<M>
     {
+        bool IsDisposed { get; }
         void Send<M>(M message);
-        void Send(ISignal signal);
+        void Signal(ISignal signal);
     }
 }

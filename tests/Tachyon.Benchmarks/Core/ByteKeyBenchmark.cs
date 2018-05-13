@@ -23,7 +23,7 @@ namespace Tachyon.Benchmarks.Core
             var binary1 = new byte[100];
             var binary2 = new byte[100];
 
-            SafeRandom.NextBytes(binary1);
+            SafeRandom.Current.NextBytes(binary1);
             // change binary2 on the last position
             binary1.CopyTo(binary2, 0);
             binary2[binary2.Length - 1] ^= binary2[binary2.Length - 1];

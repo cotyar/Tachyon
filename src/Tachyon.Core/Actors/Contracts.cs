@@ -66,24 +66,11 @@ namespace Tachyon.Actors
     public interface IAddressable : IComparable<IAddressable>, IEquatable<IAddressable>, IConsistentlyHashable
     {
     }
-
-    /// <summary>
-    /// A reference to an addressable resource accessible in distributed ecosystem:
-    /// an actor, stream, key-value store entry etc.
-    /// </summary>
-    /// <remarks>
-    /// Do not confuse this with IVar data type from Concurrent ML.
-    /// </remarks>
-    /// <typeparam name="M"></typeparam>
-    public interface IVar<in M> : IAddressable
-    {
-        IVar<N> Narrow<N>() where N : M;
-    }
     
     public interface ITimer : IDisposable
     {
-        void Schedule<M>(TimeSpan delay, IVar<M> target, M message, CancellationToken token = default(CancellationToken));
-        void Schedule<M>(TimeSpan delay, TimeSpan interval, IVar<M> target, M message, CancellationToken token = default(CancellationToken));
+        void Schedule<M>(TimeSpan delay, Var<M> target, M message, CancellationToken token = default(CancellationToken));
+        void Schedule<M>(TimeSpan delay, TimeSpan interval, Var<M> target, M message, CancellationToken token = default(CancellationToken));
     }
 
     public interface ICell : IAsyncDisposable
@@ -92,7 +79,9 @@ namespace Tachyon.Actors
         IActorRuntime Runtime { get; }
         ValueTask<Unit> Stop();
         void Unhandled(object messageOrSignal);
-        void Send(ISignal signal); //TODO: use custom awaiter to release thread control i.e. when mailbox is full
+
+        void Send<T>(Var<T> target, T message);
+        void Signal(IAddressable target, ISignal signal);
     }
 
     /// <summary>
@@ -102,16 +91,25 @@ namespace Tachyon.Actors
     /// <typeparam name="M">Type of the associated actor's protocol messages.</typeparam>
     public interface ICell<S, M> : ICell
     {
-        new IVar<M> Self { get; }
+        new Var<M> Self { get; }
         S State { get; }
-        void Send(M message); //TODO: use custom awaiter to release thread control i.e. when mailbox is full
+    }
+
+    public interface IRandomGenerator
+    {
+        Random Random { get; }
+    }
+
+    public interface IClock
+    {
+        DateTime UtcNow();
     }
     
-    public interface IActorRuntime : IAsyncDisposable, IHostedService
+    public interface IActorRuntime : IAsyncDisposable, IHostedService, IRandomGenerator, IClock
     {
         ITimer Timer { get; }
         TaskScheduler TaskScheduler { get; }
-        IVar<DeadLetter> DeadLetters { get; }
+        Var<DeadLetter> DeadLetters { get; }
 
         Task StartAsync(CancellationToken token = default(CancellationToken));
     }

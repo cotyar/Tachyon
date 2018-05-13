@@ -11,7 +11,7 @@ using System;
 namespace Tachyon.Actors
 {
     /// <summary>
-    /// Signal send when an actor instance has been created or recreated.
+    /// Send send when an actor instance has been created or recreated.
     /// </summary>
     public sealed class Activated : ISignal
     {

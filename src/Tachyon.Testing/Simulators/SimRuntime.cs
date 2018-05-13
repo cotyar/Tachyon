@@ -6,6 +6,7 @@
 // -----------------------------------------------------------------------
 #endregion
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -17,7 +18,12 @@ namespace Tachyon.Testing.Simulators
     {
         public ITimer Timer { get; }
         public TaskScheduler TaskScheduler { get; }
-        public IVar<DeadLetter> DeadLetters { get; }
+        public Var<DeadLetter> DeadLetters { get; }
+        public Random Random { get; }
+        public DateTime UtcNow()
+        {
+            throw new NotImplementedException();
+        }
 
         public void Dispose()
         {

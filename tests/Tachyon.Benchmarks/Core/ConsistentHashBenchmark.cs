@@ -26,7 +26,7 @@ namespace Tachyon.Benchmarks.Core
             testString = Guid.NewGuid().ToString("D");
             testBinary = new byte[100];
             
-            SafeRandom.NextBytes(testBinary);
+            SafeRandom.Current.NextBytes(testBinary);
         }
 
         [Benchmark]
