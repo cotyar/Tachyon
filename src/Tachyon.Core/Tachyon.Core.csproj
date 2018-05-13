@@ -29,8 +29,4 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.0-preview2-26406-04" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Collections\Convergent\" />
-  </ItemGroup>
-
 </Project>

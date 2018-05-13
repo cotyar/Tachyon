@@ -6,7 +6,9 @@
 // -----------------------------------------------------------------------
 #endregion
 
+using System;
 using JetBrains.Annotations;
+using Tachyon.Core;
 using Tachyon.Core.Actors.Mailboxes;
 
 namespace Tachyon.Actors
@@ -19,8 +21,10 @@ namespace Tachyon.Actors
     /// Do not confuse this with IVar data type from Concurrent ML.
     /// </remarks>
     /// <typeparam name="M"></typeparam>
-    public sealed class Var<M>
+    [Immutable]
+    public sealed class Var<M> : IAddressable
     {
+        private readonly int hash;
         private readonly string key;
 
         /// <summary>
@@ -33,6 +37,7 @@ namespace Tachyon.Actors
         public Var([NotNull]string key)
         {
             this.key = key;
+            this.hash = Murmur.Hash(key);
         }
 
         public string Key => key;
@@ -57,28 +62,35 @@ namespace Tachyon.Actors
             channel.Signal(signal);
         }
 
-        public Var<N> Narrow<N>() where N : M
-        {
-            throw new System.NotImplementedException();
-        }
+        public Var<N> Narrow<N>() where N : M => new Var<N>(this.Key);
 
         public int CompareTo(IAddressable other)
         {
-            throw new System.NotImplementedException();
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(other, null)) return 1;
+
+            return string.Compare(Key, other.Key, StringComparison.InvariantCulture);
         }
 
         public bool Equals(IAddressable other)
         {
-            throw new System.NotImplementedException();
+            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other, null)) return false;
+
+            return Key == other.Key;
         }
 
-        public int GetConsistentHash()
-        {
-            throw new System.NotImplementedException();
-        }
+        public int GetConsistentHash() => hash;
+
+        public override bool Equals(object obj) => 
+            obj is IAddressable addressable && Equals(addressable);
+
+        public override int GetHashCode() => hash;
+
+        public override string ToString() => $"<{key}>";
     }
 
-    interface IChannel<M>
+    interface IChannel<M> : IDisposable
     {
         bool IsDisposed { get; }
         void Send<M>(M message);

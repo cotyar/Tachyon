@@ -42,5 +42,25 @@ namespace Tachyon.Actors
         }
 
         Task IHostedService.StopAsync(CancellationToken cancellationToken) => DisposeAsync(cancellationToken);
+        public void Schedule<M>(TimeSpan delay, Var<M> target, M message, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Schedule<M>(TimeSpan delay, TimeSpan interval, Var<M> target, M message,
+            CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Schedule<M>(string key, DateTime fireAt, Var<M> target, M message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> Cancel(string key)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
