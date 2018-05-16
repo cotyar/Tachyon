@@ -19,23 +19,23 @@ namespace Tachyon.Actors
     /// </summary>
     public static class Vars
     {
-        public static Var<M> Local<M>(ByteKey regionKey, int key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Var<M> Local<M>(ByteKey regionKey, uint key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Var<M> Local<M>(ByteKey regionKey, long key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Var<M> Local<M>(ByteKey regionKey, ulong key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Var<M> Local<M>(ByteKey regionKey, Guid key) => new Local<M>(regionKey, key.ToByteArray());
-        public static Var<M> Local<M>(ByteKey regionKey, [NotNull]string key) => new Local<M>(Encoding.UTF8.GetBytes(key));
-        public static Var<M> Local<M>(ByteKey regionKey, [NotNull]string key, Encoding encoding) => new Local<M>(encoding.GetBytes(key));
-        public static Var<M> Local<M>(ByteKey regionKey, ByteKey key) => new Local<M>(regionKey, key);
+        public static Local<M> Local<M>(ByteKey regionKey, int key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Local<M> Local<M>(ByteKey regionKey, uint key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Local<M> Local<M>(ByteKey regionKey, long key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Local<M> Local<M>(ByteKey regionKey, ulong key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Local<M> Local<M>(ByteKey regionKey, Guid key) => new Local<M>(regionKey, key.ToByteArray());
+        public static Local<M> Local<M>(ByteKey regionKey, [NotNull]string key) => new Local<M>(Encoding.UTF8.GetBytes(key));
+        public static Local<M> Local<M>(ByteKey regionKey, [NotNull]string key, Encoding encoding) => new Local<M>(encoding.GetBytes(key));
+        public static Local<M> Local<M>(ByteKey regionKey, ByteKey key) => new Local<M>(regionKey, key);
 
-        public static Var<M> Global<M>(int key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Var<M> Global<M>(uint key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Var<M> Global<M>(long key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Var<M> Global<M>(ulong key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Var<M> Global<M>(Guid key) => new Global<M>(key.ToByteArray());
-        public static Var<M> Global<M>([NotNull]string key) => new Global<M>(Encoding.UTF8.GetBytes(key));
-        public static Var<M> Global<M>([NotNull]string key, Encoding encoding) => new Global<M>(encoding.GetBytes(key));
-        public static Var<M> Global<M>(ByteKey key) => new Global<M>(key);
+        public static Global<M> Global<M>(int key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Global<M> Global<M>(uint key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Global<M> Global<M>(long key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Global<M> Global<M>(ulong key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Global<M> Global<M>(Guid key) => new Global<M>(key.ToByteArray());
+        public static Global<M> Global<M>([NotNull]string key) => new Global<M>(Encoding.UTF8.GetBytes(key));
+        public static Global<M> Global<M>([NotNull]string key, Encoding encoding) => new Global<M>(encoding.GetBytes(key));
+        public static Global<M> Global<M>(ByteKey key) => new Global<M>(key);
     }
 
     /// <summary>
