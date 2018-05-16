@@ -7,6 +7,7 @@
 #endregion
 
 using System;
+using System.Text;
 using JetBrains.Annotations;
 using Tachyon.Core;
 using Tachyon.Core.Actors.Mailboxes;
@@ -14,33 +15,61 @@ using Tachyon.Core.Actors.Mailboxes;
 namespace Tachyon.Actors
 {
     /// <summary>
+    /// Helper methods for building <see cref="Var{M}"/> from values of different types.
+    /// </summary>
+    public static class Vars
+    {
+        public static Var<M> Local<M>(ByteKey regionKey, int key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Var<M> Local<M>(ByteKey regionKey, uint key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Var<M> Local<M>(ByteKey regionKey, long key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Var<M> Local<M>(ByteKey regionKey, ulong key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
+        public static Var<M> Local<M>(ByteKey regionKey, Guid key) => new Local<M>(regionKey, key.ToByteArray());
+        public static Var<M> Local<M>(ByteKey regionKey, [NotNull]string key) => new Local<M>(Encoding.UTF8.GetBytes(key));
+        public static Var<M> Local<M>(ByteKey regionKey, [NotNull]string key, Encoding encoding) => new Local<M>(encoding.GetBytes(key));
+        public static Var<M> Local<M>(ByteKey regionKey, ByteKey key) => new Local<M>(regionKey, key);
+
+        public static Var<M> Global<M>(int key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Var<M> Global<M>(uint key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Var<M> Global<M>(long key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Var<M> Global<M>(ulong key) => new Global<M>(BitConverter.GetBytes(key));
+        public static Var<M> Global<M>(Guid key) => new Global<M>(key.ToByteArray());
+        public static Var<M> Global<M>([NotNull]string key) => new Global<M>(Encoding.UTF8.GetBytes(key));
+        public static Var<M> Global<M>([NotNull]string key, Encoding encoding) => new Global<M>(encoding.GetBytes(key));
+        public static Var<M> Global<M>(ByteKey key) => new Global<M>(key);
+    }
+
+    /// <summary>
     /// A reference to an addressable resource accessible in distributed ecosystem:
     /// an actor, stream, key-value store entry etc.
+    ///
+    /// Note: at the moment type parameters is not used in order to determine the
+    /// uniqueness of the <see cref="Var{M}"/> having the same key.
     /// </summary>
     /// <remarks>
     /// Do not confuse this with IVar data type from Concurrent ML.
     /// </remarks>
     /// <typeparam name="M"></typeparam>
     [Immutable]
-    public sealed class Var<M> : IAddressable
+    public abstract class Var<M> : IAddressable
     {
-        private readonly int hash;
-        private readonly string key;
+        private readonly KeyspaceType keyspace;
+        protected readonly ByteKey key;
 
         /// <summary>
         /// Instead of sending the message through actor runtime every time,
         /// let's cache the direct pipe to a corresponding channel to either
         /// local or global resource and use it directly in subsequent tries.
         /// </summary>
-        private IChannel<M> channel;
+        protected IChannel<M> channel;
 
-        public Var([NotNull]string key)
+        internal Var(KeyspaceType keyspace, ByteKey key)
         {
+            this.keyspace = keyspace;
             this.key = key;
-            this.hash = Murmur.Hash(key);
         }
 
-        public string Key => key;
+        public KeyspaceType Keyspace => keyspace;
+        public ReadOnlySpan<byte> Key => key;
 
         internal void Send(M message, IActorRuntime runtime)
         {
@@ -62,14 +91,21 @@ namespace Tachyon.Actors
             channel.Signal(signal);
         }
 
-        public Var<N> Narrow<N>() where N : M => new Var<N>(this.Key);
+        /// <summary>
+        /// Returns a new instance of a <see cref="Var{N}"/> value,
+        /// with a type parameter narrowed to a subtype of <typeparamref name="M"/>.
+        /// </summary>
+        /// <typeparam name="N">Subtype of <typeparamref name="M"/>.</typeparam>
+        public abstract Var<N> Narrow<N>() where N : M;
 
         public int CompareTo(IAddressable other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(other, null)) return 1;
 
-            return string.Compare(Key, other.Key, StringComparison.InvariantCulture);
+            var result = keyspace.CompareTo(other.Keyspace);
+
+            return result == 0 ? Key.SequenceCompareTo(other.Key) : result;
         }
 
         public bool Equals(IAddressable other)
@@ -77,23 +113,58 @@ namespace Tachyon.Actors
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other, null)) return false;
 
-            return Key == other.Key;
+            return keyspace == other.Keyspace && Key == other.Key;
         }
 
-        public int GetConsistentHash() => hash;
+        public int GetConsistentHash() => key.GetConsistentHash();
 
         public override bool Equals(object obj) => 
             obj is IAddressable addressable && Equals(addressable);
 
-        public override int GetHashCode() => hash;
+        public override int GetHashCode() => key.GetHashCode();
 
         public override string ToString() => $"<{key}>";
     }
 
-    interface IChannel<M> : IDisposable
+    /// <summary>
+    /// Represents a locally-scoped variable. It's well known only in actor's region scope.
+    /// It can be passed and accessed over the network boundaries, however two
+    /// <see cref="Local{M}"/> vars with the same keys instantiated on different regions
+    /// will not be equal to each other.
+    /// </summary>
+    /// <typeparam name="M"></typeparam>
+    [Immutable]
+    public sealed class Local<M> : Var<M>
     {
-        bool IsDisposed { get; }
-        void Send<M>(M message);
-        void Signal(ISignal signal);
+        private static readonly ByteKey RegionSeparator = new ByteKey(new byte[]{ 0 });
+
+        internal Local(ByteKey key) : base(KeyspaceType.Local, key)
+        {
+        }
+
+        public Local(ByteKey region, ByteKey key) : base(KeyspaceType.Local, ByteKey.Concat(region, RegionSeparator, key))
+        {
+
+        }
+
+        /// <inheritdoc cref="Var{M}"/>
+        public override Var<N> Narrow<N>() => new Local<N>(key);
+    }
+
+    /// <summary>
+    /// Globally scoped vars - unique in scope of an entire cluster. Because of that,
+    /// their resolution time may be longer than for <see cref="Local{M}"/> vars. They
+    /// may be assigned globally and will always be equal to each other.
+    /// </summary>
+    /// <typeparam name="M"></typeparam>
+    [Immutable]
+    public sealed class Global<M> : Var<M>
+    {
+        public Global(ByteKey key) : base(KeyspaceType.Global, key)
+        {
+        }
+
+        /// <inheritdoc cref="Var{M}"/>
+        public override Var<N> Narrow<N>() => new Global<N>(key);
     }
 }

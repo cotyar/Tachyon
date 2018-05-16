@@ -20,7 +20,18 @@ namespace Tachyon.Core
     /// </remarks>
     static class Require
     {
-
+        /// <summary>
+        /// Checks if provided argument is not null. Otherwise it will throw an
+        /// <see cref="ArgumentNullException"/>.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Throw when <paramref name="value"/> is null.
+        /// </exception>
+        public static void NotNull<T>(T value) where T: class
+        {
+            if (ReferenceEquals(value, null))
+                throw new ArgumentNullException();
+        }
     }
 
     /// <summary>
@@ -34,6 +45,13 @@ namespace Tachyon.Core
     /// </remarks>
     static class Raise
     {
-
+        /// <summary>
+        /// Throws an <see cref="InvalidOperationException"/>.
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        public static void InvalidOperationException(string msg)
+        {
+            throw new InvalidOperationException(msg);
+        }
     }
 }

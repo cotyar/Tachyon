@@ -19,13 +19,4 @@ namespace Tachyon.Core
     {
     }
 
-    [AttributeUsage(AttributeTargets.Parameter|AttributeTargets.Property|AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public sealed class NullableAttribute : TachyonAttribute
-    {
-    }
-
-    [AttributeUsage(AttributeTargets.Method|AttributeTargets.Delegate, AllowMultiple = false, Inherited = false)]
-    public sealed class PureAttribute : TachyonAttribute
-    {
-    }
 }

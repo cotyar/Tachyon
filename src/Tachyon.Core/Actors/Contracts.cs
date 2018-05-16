@@ -92,11 +92,21 @@ namespace Tachyon.Actors
     }
 
     /// <summary>
+    /// Defines a namespace addressation rules for a given <see cref="IAddressable"/>.
+    /// </summary>
+    public enum KeyspaceType : byte
+    {
+        Local = 1,
+        Global = 2
+    }
+
+    /// <summary>
     /// Addressable interface allows to send signal to any actor.
     /// </summary>
     public interface IAddressable : IComparable<IAddressable>, IEquatable<IAddressable>, IConsistentlyHashable
     {
-        string Key { get; }
+        KeyspaceType Keyspace { get; }
+        ReadOnlySpan<byte> Key { get; }
     }
     
     /// <summary>
