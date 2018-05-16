@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -154,36 +155,14 @@ namespace Tachyon.Core
             return (original << shift) | (original >> (32 - shift));
         }
 
-        /// <summary>
-        /// Rotate a 64-bit unsigned integer to the left by <paramref name="shift"/> bits
-        /// </summary>
-        /// <param name="original">Original value</param>
-        /// <param name="shift">The shift value</param>
-        /// <returns>The rotated 64-bit integer</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ulong RotateLeft64(ulong original, int shift)
-        {
-            return (original << shift) | (original >> (64 - shift));
-        }
-
         #endregion
-
-        /// <summary>
-        /// Compute a high-quality hash of a byte array
-        /// </summary>
-        /// <param name="b">TBD</param>
-        /// <returns>TBD</returns>
-        public static int Hash(byte[] b)
-        {
-            return Hash<byte>(b);
-        }
 
         /// <summary>
         /// Compute a high-quality hash of an array
         /// </summary>
         /// <param name="a">TBD</param>
         /// <returns>TBD</returns>
-        public static int Hash<T>(T[] a)
+        public static int Hash(ReadOnlySpan<byte> a)
         {
             unchecked
             {
@@ -193,7 +172,7 @@ namespace Tachyon.Core
                 var j = 0;
                 while (j < a.Length)
                 {
-                    h = ExtendHash(h, (uint)a[j].GetHashCode(), c, k);
+                    h = ExtendHash(h, (uint)a[j], c, k);
                     c = NextMagicA(c);
                     k = NextMagicB(k);
                     j += 1;
@@ -211,7 +190,7 @@ namespace Tachyon.Core
         {
             unchecked
             {
-                var sChar = s.ToCharArray();
+                var sChar = s.AsSpan();
                 var h = StartHash((uint)s.Length * StringSeed);
                 var c = HIDDEN_MAGIC_A;
                 var k = HIDDEN_MAGIC_B;
@@ -225,37 +204,6 @@ namespace Tachyon.Core
                     j += 2;
                 }
                 if (j < s.Length) h = ExtendHash(h, sChar[j], c, k);
-                return (int)FinalizeHash(h);
-            }
-        }
-
-        /// <summary>
-        /// Compute a hash that is symmetric in its arguments--that is,
-        /// where the order of appearance of elements does not matter.
-        /// This is useful for hashing sets, for example.
-        /// </summary>
-        /// <param name="xs">TBD</param>
-        /// <param name="seed">TBD</param>
-        /// <returns>TBD</returns>
-        public static int SymmetricHash<T>(IEnumerable<T> xs, uint seed)
-        {
-            unchecked
-            {
-                uint a = 0, b = 0, n = 0;
-                uint c = 1;
-                foreach (var i in xs)
-                {
-                    var u = (uint)i.GetHashCode();
-                    a += u;
-                    b ^= u;
-                    if (u != 0) c *= u;
-                    n += 1;
-                }
-
-                var h = StartHash(seed * n);
-                h = ExtendHash(h, a, StoredMagicA[0], StoredMagicB[0]);
-                h = ExtendHash(h, b, StoredMagicA[1], StoredMagicB[1]);
-                h = ExtendHash(h, c, StoredMagicA[2], StoredMagicB[2]);
                 return (int)FinalizeHash(h);
             }
         }

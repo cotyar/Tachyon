@@ -40,26 +40,6 @@ namespace Tachyon.Core
         public static ByteKeyComparer EqualityComparer = new ByteKeyComparer();
         public static readonly ByteKey Empty = new ByteKey(new byte[0]);
 
-        public static ByteKey Concat(params ByteKey[] keys)
-        {
-            var length = 0;
-            foreach (var key in keys)
-            {
-                length += key.bytes.Length;
-            }
-
-            var buffer = new byte[length];
-
-            var index = 0;
-            foreach (var key in keys)
-            {
-                key.bytes.CopyTo(buffer, index);
-                index += key.bytes.Length;
-            }
-
-            return new ByteKey(buffer);
-        }
-
         private readonly int hash;
         private readonly byte[] bytes;
 
@@ -70,6 +50,8 @@ namespace Tachyon.Core
             this.bytes = bytes;
             this.hash = Murmur.Hash(bytes);
         }
+
+        public ReadOnlySpan<byte> Bytes => bytes;
 
         public bool Equals(ByteKey other)
         {

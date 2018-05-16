@@ -136,13 +136,28 @@ namespace Tachyon.Actors
     [Immutable]
     public sealed class Local<M> : Var<M>
     {
-        private static readonly ByteKey RegionSeparator = new ByteKey(new byte[]{ 0 });
+        private static ByteKey ConstructKey(ByteKey region, ByteKey key)
+        {
+            var regionLength = region.Bytes.Length;
+            Require.True(regionLength <= byte.MaxValue, $"Region's key cannot be longer than {byte.MaxValue} bytes");
+
+            var buffer = new byte[1 + regionLength + key.Bytes.Length];
+            Span<byte> span = buffer;
+            buffer[0] = (byte)regionLength;
+
+            region.Bytes.CopyTo(span.Slice(1, regionLength));
+
+            key.Bytes.CopyTo(span.Slice(1 + regionLength));
+
+            return new ByteKey(buffer);
+        }
 
         internal Local(ByteKey key) : base(KeyspaceType.Local, key)
         {
         }
 
-        public Local(ByteKey region, ByteKey key) : base(KeyspaceType.Local, ByteKey.Concat(region, RegionSeparator, key))
+        public Local(ByteKey region, ByteKey key) 
+            : base(KeyspaceType.Local, ConstructKey(region, key))
         {
 
         }
