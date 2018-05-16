@@ -1,6 +1,6 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
-//  <copyright file="IChannel.cs" creator="Bartosz Sypytkowski">
+//  <copyright file="Bindings.cs" creator="Bartosz Sypytkowski">
 //      Copyright (C) 2018 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
@@ -10,9 +10,13 @@ using System;
 
 namespace Tachyon.Actors
 {
-    public interface IChannel<M> : IDisposable
+    public interface IBinding : IDisposable
     {
         bool IsDisposed { get; }
+    }
+
+    public interface IChannel<M> : IBinding
+    {
         void Send<M>(M message);
         void Signal(ISignal signal);
     }

@@ -8,24 +8,29 @@
 
 namespace Tachyon.Actors
 {
+    interface IBoundAs<B> where B : IBinding
+    {
+        
+    }
+
     /// <summary>
-    /// Actor provider exposes an API, which allows to bind a a specific
-    /// actor behaviors to later be able to access them from local or global
+    /// An interface, which allows to bind a a specific resources and
+    /// make them accessible from either local or global keyspace.
     /// scope.
     /// </summary>
-    interface IActorProvider
+    interface IBinder
     {
         /// <summary>
-        /// Binds a global behavior for current actor runtime. It can be
-        /// instantiated and accessed later on using <see cref="Global{M}"/> vars.
+        /// Defines a global behavior in context of a current actor runtime. It can be
+        /// instantiated and accessed later on using <see cref="Global{B}"/> vars.
         /// </summary>
-        void Bind<S, M>(IBehavior<S, M> globalBehavior);
+        void Define<B>(IBoundAs<B> bindable) where B : IBinding;
 
         /// <summary>
         /// Binds a defined <paramref name="behavior"/> to a locally scoped
         /// <paramref name="var"/>.
         /// </summary>
-        void Bind<S, M>(IBehavior<S, M> behavior, Local<M> var);
+        void Bind<B>(IBoundAs<B> behavior, Local<B> var) where B : IBinding;
     }
 
     public abstract class Region

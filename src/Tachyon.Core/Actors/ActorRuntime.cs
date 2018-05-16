@@ -18,7 +18,7 @@ namespace Tachyon.Actors
     {
         public ITimer Timer { get; }
         public TaskScheduler TaskScheduler { get; }
-        public Var<DeadLetter> DeadLetters { get; }
+        public Var<IChannel<DeadLetter>> DeadLetters { get; }
         public Random Random => SafeRandom.Current;
 
         public DateTime UtcNow()
@@ -42,18 +42,18 @@ namespace Tachyon.Actors
         }
 
         Task IHostedService.StopAsync(CancellationToken cancellationToken) => DisposeAsync(cancellationToken);
-        public void Schedule<M>(TimeSpan delay, Var<M> target, M message, CancellationToken token = default(CancellationToken))
+        public void Schedule<M>(TimeSpan delay, Var<IChannel<M>> target, M message, CancellationToken token = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public void Schedule<M>(TimeSpan delay, TimeSpan interval, Var<M> target, M message,
+        public void Schedule<M>(TimeSpan delay, TimeSpan interval, Var<IChannel<M>> target, M message,
             CancellationToken token = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public Task Schedule<M>(string key, DateTime fireAt, Var<M> target, M message)
+        public Task Schedule<M>(string key, DateTime fireAt, Var<IChannel<M>> target, M message)
         {
             throw new NotImplementedException();
         }

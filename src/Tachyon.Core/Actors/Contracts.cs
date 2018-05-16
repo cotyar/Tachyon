@@ -54,7 +54,7 @@ namespace Tachyon.Actors
         /// it's not reliable for a longer periods of time. Therefore it's not safe to set a
         /// <paramref name="delay"/> for longer than minutes.
         /// </remarks>
-        void Schedule<M>(TimeSpan delay, Var<M> target, M message, CancellationToken token = default(CancellationToken));
+        void Schedule<M>(TimeSpan delay, Var<IChannel<M>> target, M message, CancellationToken token = default(CancellationToken));
 
         /// <summary>
         /// Schedules a <paramref name="message"/> to be send to a given <paramref name="target"/>
@@ -66,7 +66,7 @@ namespace Tachyon.Actors
         /// it's not reliable for a longer periods of time. Therefore it's not safe to set a
         /// <paramref name="delay"/> for longer than minutes.
         /// </remarks>
-        void Schedule<M>(TimeSpan delay, TimeSpan interval, Var<M> target, M message, CancellationToken token = default(CancellationToken));
+        void Schedule<M>(TimeSpan delay, TimeSpan interval, Var<IChannel<M>> target, M message, CancellationToken token = default(CancellationToken));
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ namespace Tachyon.Actors
         /// a new schedule will override it.
         /// </summary>
         /// <returns>A task which completes after schedule has been successfully persisted.</returns>
-        Task Schedule<M>(string key, DateTime fireAt, Var<M> target, M message);
+        Task Schedule<M>(string key, DateTime fireAt, Var<IChannel<M>> target, M message);
 
         /// <summary>
         /// Cancels a previously <see cref="Schedule{M}"/> message send request using provided
@@ -126,7 +126,7 @@ namespace Tachyon.Actors
         /// <summary>
         /// Self variable reference for a current actor cell.
         /// </summary>
-        new Var<M> Self { get; }
+        new Var<IChannel<M>> Self { get; }
 
         /// <summary>
         /// Actor cell embedded state.
@@ -165,7 +165,7 @@ namespace Tachyon.Actors
     public interface IActorRuntime : IAsyncDisposable, IHostedService, IRandomGenerator, IClock, ITimer, IReminder
     {
         TaskScheduler TaskScheduler { get; }
-        Var<DeadLetter> DeadLetters { get; }
+        Var<IChannel<DeadLetter>> DeadLetters { get; }
 
         Task StartAsync(CancellationToken token = default(CancellationToken));
     }

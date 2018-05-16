@@ -21,7 +21,7 @@ namespace Tachyon.Tests
         public void Local_Var_should_not_allow_region_key_to_be_more_than_256_bytes()
         {
             var regionKey = new string('x', 1000);
-            Action action = () => Vars.Local<int>(Encoding.UTF8.GetBytes(regionKey), Guid.NewGuid());
+            Action action = () => Vars.Local<IChannel<int>>(Encoding.UTF8.GetBytes(regionKey), Guid.NewGuid());
 
             action.Should().Throw<ArgumentException>().WithMessage($"Region's key cannot be longer than {byte.MaxValue} bytes");
         }

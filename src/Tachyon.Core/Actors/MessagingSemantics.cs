@@ -85,7 +85,7 @@ namespace Tachyon.Actors
         /// <summary>
         /// An expected received for a reply message for a given request.
         /// </summary>
-        Var<R> ReplyTo { get; }
+        Var<IChannel<R>> ReplyTo { get; }
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ namespace Tachyon.Actors
         /// (in case of local actor) or accepted for remote layer (in case of remote one),
         /// or yields when a mailbox is full or remote connection was not established.
         /// </returns>
-        MailboxAwaiter Send<M>(Var<M> target, M message);
+        MailboxAwaiter Send<M>(Var<IChannel<M>> target, M message);
 
         /// <summary>
         /// A fire-and-forget way to send a <paramref name="message"/> to a given
@@ -137,7 +137,7 @@ namespace Tachyon.Actors
         /// remote layer to be send. False, if mailbox is full (message was not put in
         /// this case) or when remote layer is unresponsive.
         /// </returns>
-        bool TrySend<M>(Var<M> target, M message);
+        bool TrySend<M>(Var<IChannel<M>> target, M message);
 
         /// <summary>
         /// A fire-and-forget way to send a <paramref name="signal"/> to a given

@@ -19,23 +19,23 @@ namespace Tachyon.Actors
     /// </summary>
     public static class Vars
     {
-        public static Local<M> Local<M>(ByteKey regionKey, int key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Local<M> Local<M>(ByteKey regionKey, uint key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Local<M> Local<M>(ByteKey regionKey, long key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Local<M> Local<M>(ByteKey regionKey, ulong key) => new Local<M>(regionKey, BitConverter.GetBytes(key));
-        public static Local<M> Local<M>(ByteKey regionKey, Guid key) => new Local<M>(regionKey, key.ToByteArray());
-        public static Local<M> Local<M>(ByteKey regionKey, [NotNull]string key) => new Local<M>(Encoding.UTF8.GetBytes(key));
-        public static Local<M> Local<M>(ByteKey regionKey, [NotNull]string key, Encoding encoding) => new Local<M>(encoding.GetBytes(key));
-        public static Local<M> Local<M>(ByteKey regionKey, ByteKey key) => new Local<M>(regionKey, key);
+        public static Local<B> Local<B>(ByteKey regionKey, int key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, uint key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, long key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, ulong key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, Guid key) where B : IBinding => new Local<B>(regionKey, key.ToByteArray());
+        public static Local<B> Local<B>(ByteKey regionKey, [NotNull]string key) where B : IBinding => new Local<B>(Encoding.UTF8.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, [NotNull]string key, Encoding encoding) where B : IBinding => new Local<B>(encoding.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, ByteKey key) where B : IBinding => new Local<B>(regionKey, key);
 
-        public static Global<M> Global<M>(int key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Global<M> Global<M>(uint key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Global<M> Global<M>(long key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Global<M> Global<M>(ulong key) => new Global<M>(BitConverter.GetBytes(key));
-        public static Global<M> Global<M>(Guid key) => new Global<M>(key.ToByteArray());
-        public static Global<M> Global<M>([NotNull]string key) => new Global<M>(Encoding.UTF8.GetBytes(key));
-        public static Global<M> Global<M>([NotNull]string key, Encoding encoding) => new Global<M>(encoding.GetBytes(key));
-        public static Global<M> Global<M>(ByteKey key) => new Global<M>(key);
+        public static Global<B> Global<B>(int key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(uint key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(long key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(ulong key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(Guid key) where B : IBinding => new Global<B>(key.ToByteArray());
+        public static Global<B> Global<B>([NotNull]string key) where B : IBinding => new Global<B>(Encoding.UTF8.GetBytes(key));
+        public static Global<B> Global<B>([NotNull]string key, Encoding encoding) where B : IBinding => new Global<B>(encoding.GetBytes(key));
+        public static Global<B> Global<B>(ByteKey key) where B : IBinding => new Global<B>(key);
     }
 
     /// <summary>
@@ -43,24 +43,24 @@ namespace Tachyon.Actors
     /// an actor, stream, key-value store entry etc.
     ///
     /// Note: at the moment type parameters is not used in order to determine the
-    /// uniqueness of the <see cref="Var{M}"/> having the same key.
+    /// uniqueness of the <see cref="Var{B}"/> having the same key.
     /// </summary>
     /// <remarks>
     /// Do not confuse this with IVar data type from Concurrent ML.
     /// </remarks>
-    /// <typeparam name="M"></typeparam>
+    /// <typeparam name="B">Type of underlying bound resource.</typeparam>
     [Immutable]
-    public abstract class Var<M> : IAddressable
+    public abstract class Var<B> : IAddressable where B : IBinding
     {
         private readonly KeyspaceType keyspace;
         protected readonly ByteKey key;
 
         /// <summary>
-        /// Instead of sending the message through actor runtime every time,
-        /// let's cache the direct pipe to a corresponding channel to either
+        /// Instead of sending the command through actor runtime every time,
+        /// let's cache the direct pipe to a corresponding binding to either
         /// local or global resource and use it directly in subsequent tries.
         /// </summary>
-        protected IChannel<M> channel;
+        protected B binding;
 
         internal Var(KeyspaceType keyspace, ByteKey key)
         {
@@ -71,32 +71,12 @@ namespace Tachyon.Actors
         public KeyspaceType Keyspace => keyspace;
         public ReadOnlySpan<byte> Key => key;
 
-        internal void Send(M message, IActorRuntime runtime)
-        {
-            if (channel == null || channel.IsDisposed)
-            {
-                //TODO: retrieve channel from the runtime
-            }
-
-            channel.Send(message);
-        }
-
-        internal void Signal(ISignal signal, IActorRuntime runtime)
-        {
-            if (channel == null || channel.IsDisposed)
-            {
-                //TODO: retrieve channel from the runtime
-            }
-
-            channel.Signal(signal);
-        }
-
         /// <summary>
         /// Returns a new instance of a <see cref="Var{N}"/> value,
         /// with a type parameter narrowed to a subtype of <typeparamref name="M"/>.
         /// </summary>
-        /// <typeparam name="N">Subtype of <typeparamref name="M"/>.</typeparam>
-        public abstract Var<N> Narrow<N>() where N : M;
+        /// <typeparam name="S">Subtype of <typeparamref name="M"/>.</typeparam>
+        public abstract Var<S> Narrow<S>() where S : B;
 
         public int CompareTo(IAddressable other)
         {
@@ -118,7 +98,7 @@ namespace Tachyon.Actors
 
         public int GetConsistentHash() => key.GetConsistentHash();
 
-        public override bool Equals(object obj) => 
+        public override bool Equals(object obj) =>
             obj is IAddressable addressable && Equals(addressable);
 
         public override int GetHashCode() => key.GetHashCode();
@@ -129,12 +109,12 @@ namespace Tachyon.Actors
     /// <summary>
     /// Represents a locally-scoped variable. It's well known only in actor's region scope.
     /// It can be passed and accessed over the network boundaries, however two
-    /// <see cref="Local{M}"/> vars with the same keys instantiated on different regions
+    /// <see cref="Local{B}"/> vars with the same keys instantiated on different regions
     /// will not be equal to each other.
     /// </summary>
-    /// <typeparam name="M"></typeparam>
+    /// <typeparam name="B">Type of the underlying binding.</typeparam>
     [Immutable]
-    public sealed class Local<M> : Var<M>
+    public sealed class Local<B> : Var<B> where B : IBinding
     {
         private static ByteKey ConstructKey(ByteKey region, ByteKey key)
         {
@@ -156,14 +136,14 @@ namespace Tachyon.Actors
         {
         }
 
-        public Local(ByteKey region, ByteKey key) 
+        public Local(ByteKey region, ByteKey key)
             : base(KeyspaceType.Local, ConstructKey(region, key))
         {
 
         }
 
         /// <inheritdoc cref="Var{M}"/>
-        public override Var<N> Narrow<N>() => new Local<N>(key);
+        public override Var<S> Narrow<S>() => new Local<S>(key);
     }
 
     /// <summary>
@@ -171,9 +151,9 @@ namespace Tachyon.Actors
     /// their resolution time may be longer than for <see cref="Local{M}"/> vars. They
     /// may be assigned globally and will always be equal to each other.
     /// </summary>
-    /// <typeparam name="M"></typeparam>
+    /// <typeparam name="B">Type of an underlying binding.</typeparam>
     [Immutable]
-    public sealed class Global<M> : Var<M>
+    public sealed class Global<B> : Var<B> where B : IBinding
     {
         public Global(ByteKey key) : base(KeyspaceType.Global, key)
         {
