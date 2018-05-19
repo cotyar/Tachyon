@@ -40,6 +40,11 @@ namespace Tachyon.Testing.Simulators
             throw new System.NotImplementedException();
         }
 
+        public void ResolveBinding<B>(Var<B> var, out B binding) where B : class, IBinding
+        {
+            throw new NotImplementedException();
+        }
+
         Task IActorRuntime.StartAsync(CancellationToken token)
         {
             throw new System.NotImplementedException();

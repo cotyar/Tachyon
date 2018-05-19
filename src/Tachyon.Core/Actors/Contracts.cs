@@ -6,14 +6,11 @@
 // -----------------------------------------------------------------------
 #endregion
 
-using Microsoft.FSharp.Core;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Tachyon.Core;
-using Tachyon.Core.Actors.Mailboxes;
 
 namespace Tachyon.Actors
 {
@@ -168,5 +165,15 @@ namespace Tachyon.Actors
         Var<IChannel<DeadLetter>> DeadLetters { get; }
 
         Task StartAsync(CancellationToken token = default(CancellationToken));
+
+        /// <summary>
+        /// Resolves a <paramref name="binding"/> for a given <paramref name="var"/>
+        /// identifier of either <see cref="Local{B}"/> or <see cref="Global{B}"/>
+        /// resource.
+        /// </summary>
+        /// <typeparam name="B"></typeparam>
+        /// <param name="var"></param>
+        /// <param name="binding"></param>
+        void ResolveBinding<B>(Var<B> var, out B binding) where B : class, IBinding;
     }
 }

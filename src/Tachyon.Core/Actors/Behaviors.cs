@@ -16,7 +16,7 @@ namespace Tachyon.Actors
     public delegate ValueTask<IBehavior<S, M>> Receive<S, M>(ICell<S, M> cell, S state, M message);
     public delegate ValueTask<IBehavior<S, M>> Signalize<S, M>(ICell<S, M> cell, S state, ISignal signal);
 
-    public interface IBehavior<S, M> { }
+    public interface IBehavior<S, M> : IBoundAs<IChannel<M>> { }
 
     /// <summary>
     /// Behavior which determines a custom reaction over incoming message or signal.

@@ -8,7 +8,7 @@
 
 namespace Tachyon.Actors
 {
-    interface IBoundAs<B> where B : IBinding
+    public interface IBoundAs<B> where B : IBinding
     {
         
     }
@@ -30,7 +30,7 @@ namespace Tachyon.Actors
         /// Binds a defined <paramref name="behavior"/> to a locally scoped
         /// <paramref name="var"/>.
         /// </summary>
-        void Bind<B>(IBoundAs<B> behavior, Local<B> var) where B : IBinding;
+        void Bind<B>(IBoundAs<B> behavior, Local<B> var) where B : class, IBinding;
     }
 
     public abstract class Region

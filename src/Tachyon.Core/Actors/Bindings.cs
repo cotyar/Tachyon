@@ -15,6 +15,30 @@ namespace Tachyon.Actors
         bool IsDisposed { get; }
     }
 
+    /// <summary>
+    /// Streams are binding versions working in the context of reactive
+    /// streams.
+    /// </summary>
+    /// <typeparam name="M"></typeparam>
+    public interface IStream<M> : IBinding
+    {
+
+    }
+
+    /// <summary>
+    /// Keys are binding versions working in the context of Conflict-free
+    /// Replicated Data Types (CRDTs) accessible from tachyon cluster.
+    /// </summary>
+    /// <typeparam name="V"></typeparam>
+    public interface IKey<V> : IBinding
+    {
+
+    }
+
+    /// <summary>
+    /// Channels are binding versions working in the context of actors.
+    /// </summary>
+    /// <typeparam name="M"></typeparam>
     public interface IChannel<M> : IBinding
     {
         void Send<M>(M message);

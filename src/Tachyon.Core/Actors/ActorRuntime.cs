@@ -41,6 +41,11 @@ namespace Tachyon.Actors
             throw new System.NotImplementedException();
         }
 
+        public void ResolveBinding<B>(Var<B> var, out B binding) where B : class, IBinding
+        {
+            throw new NotImplementedException();
+        }
+
         Task IHostedService.StopAsync(CancellationToken cancellationToken) => DisposeAsync(cancellationToken);
         public void Schedule<M>(TimeSpan delay, Var<IChannel<M>> target, M message, CancellationToken token = default(CancellationToken))
         {

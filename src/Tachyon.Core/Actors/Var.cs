@@ -8,6 +8,7 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using JetBrains.Annotations;
 using Tachyon.Core;
 using Tachyon.Core.Actors.Mailboxes;
@@ -19,23 +20,23 @@ namespace Tachyon.Actors
     /// </summary>
     public static class Vars
     {
-        public static Local<B> Local<B>(ByteKey regionKey, int key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
-        public static Local<B> Local<B>(ByteKey regionKey, uint key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
-        public static Local<B> Local<B>(ByteKey regionKey, long key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
-        public static Local<B> Local<B>(ByteKey regionKey, ulong key) where B : IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
-        public static Local<B> Local<B>(ByteKey regionKey, Guid key) where B : IBinding => new Local<B>(regionKey, key.ToByteArray());
-        public static Local<B> Local<B>(ByteKey regionKey, [NotNull]string key) where B : IBinding => new Local<B>(Encoding.UTF8.GetBytes(key));
-        public static Local<B> Local<B>(ByteKey regionKey, [NotNull]string key, Encoding encoding) where B : IBinding => new Local<B>(encoding.GetBytes(key));
-        public static Local<B> Local<B>(ByteKey regionKey, ByteKey key) where B : IBinding => new Local<B>(regionKey, key);
+        public static Local<B> Local<B>(ByteKey regionKey, int key) where B : class, IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, uint key) where B : class, IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, long key) where B : class, IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, ulong key) where B : class, IBinding => new Local<B>(regionKey, BitConverter.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, Guid key) where B : class, IBinding => new Local<B>(regionKey, key.ToByteArray());
+        public static Local<B> Local<B>(ByteKey regionKey, [NotNull]string key) where B : class, IBinding => new Local<B>(Encoding.UTF8.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, [NotNull]string key, Encoding encoding) where B : class, IBinding => new Local<B>(encoding.GetBytes(key));
+        public static Local<B> Local<B>(ByteKey regionKey, ByteKey key) where B : class, IBinding => new Local<B>(regionKey, key);
 
-        public static Global<B> Global<B>(int key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
-        public static Global<B> Global<B>(uint key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
-        public static Global<B> Global<B>(long key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
-        public static Global<B> Global<B>(ulong key) where B : IBinding => new Global<B>(BitConverter.GetBytes(key));
-        public static Global<B> Global<B>(Guid key) where B : IBinding => new Global<B>(key.ToByteArray());
-        public static Global<B> Global<B>([NotNull]string key) where B : IBinding => new Global<B>(Encoding.UTF8.GetBytes(key));
-        public static Global<B> Global<B>([NotNull]string key, Encoding encoding) where B : IBinding => new Global<B>(encoding.GetBytes(key));
-        public static Global<B> Global<B>(ByteKey key) where B : IBinding => new Global<B>(key);
+        public static Global<B> Global<B>(int key) where B : class, IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(uint key) where B : class, IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(long key) where B : class, IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(ulong key) where B : class, IBinding => new Global<B>(BitConverter.GetBytes(key));
+        public static Global<B> Global<B>(Guid key) where B : class, IBinding => new Global<B>(key.ToByteArray());
+        public static Global<B> Global<B>([NotNull]string key) where B : class, IBinding => new Global<B>(Encoding.UTF8.GetBytes(key));
+        public static Global<B> Global<B>([NotNull]string key, Encoding encoding) where B : class, IBinding => new Global<B>(encoding.GetBytes(key));
+        public static Global<B> Global<B>(ByteKey key) where B : class, IBinding => new Global<B>(key);
     }
 
     /// <summary>
@@ -50,7 +51,7 @@ namespace Tachyon.Actors
     /// </remarks>
     /// <typeparam name="B">Type of underlying bound resource.</typeparam>
     [Immutable]
-    public abstract class Var<B> : IAddressable where B : IBinding
+    public abstract class Var<B> : IAddressable where B : class, IBinding
     {
         private readonly KeyspaceType keyspace;
         protected readonly ByteKey key;
@@ -76,7 +77,17 @@ namespace Tachyon.Actors
         /// with a type parameter narrowed to a subtype of <typeparamref name="M"/>.
         /// </summary>
         /// <typeparam name="S">Subtype of <typeparamref name="M"/>.</typeparam>
-        public abstract Var<S> Narrow<S>() where S : B;
+        public abstract Var<S> Narrow<S>() where S : class, B;
+
+        internal void Call<F>(IActorRuntime runtime, in F func) where F : struct, IFunc<B, Unit>
+        {
+            if (ReferenceEquals(binding, null) || binding.IsDisposed)
+            {
+                runtime.ResolveBinding(this, out binding);
+            }
+
+            func.Invoke(binding);
+        }
 
         public int CompareTo(IAddressable other)
         {
@@ -114,7 +125,7 @@ namespace Tachyon.Actors
     /// </summary>
     /// <typeparam name="B">Type of the underlying binding.</typeparam>
     [Immutable]
-    public sealed class Local<B> : Var<B> where B : IBinding
+    public sealed class Local<B> : Var<B> where B : class, IBinding
     {
         private static ByteKey ConstructKey(ByteKey region, ByteKey key)
         {
@@ -153,7 +164,7 @@ namespace Tachyon.Actors
     /// </summary>
     /// <typeparam name="B">Type of an underlying binding.</typeparam>
     [Immutable]
-    public sealed class Global<B> : Var<B> where B : IBinding
+    public sealed class Global<B> : Var<B> where B : class, IBinding
     {
         public Global(ByteKey key) : base(KeyspaceType.Global, key)
         {
