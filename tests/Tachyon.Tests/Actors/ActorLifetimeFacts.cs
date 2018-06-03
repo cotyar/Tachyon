@@ -1,18 +1,23 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
-//  <copyright file="Regions.cs" creator="Bartosz Sypytkowski">
+//  <copyright file="ActorLifetimeFacts.cs" creator="Bartosz Sypytkowski">
 //      Copyright (C) 2018 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
-using System.Collections.Immutable;
-using Tachyon.Core;
+using System;
 
-namespace Tachyon.Actors
+namespace Tachyon.Tests.Actors
 {
-    public abstract class Region
+    public class ActorLifetimeFacts : IDisposable
     {
-        private ImmutableDictionary<ByteKey, ICell> activeCells = ImmutableDictionary<ByteKey, ICell>.Empty;
+        public ActorLifetimeFacts()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

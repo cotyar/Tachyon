@@ -1,18 +1,17 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
-//  <copyright file="Regions.cs" creator="Bartosz Sypytkowski">
+//  <copyright file="TachyonCancellationTokenSource.cs" creator="Bartosz Sypytkowski">
 //      Copyright (C) 2018 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
-using System.Collections.Immutable;
-using Tachyon.Core;
+using System.Threading;
 
-namespace Tachyon.Actors
+namespace Tachyon.Core.Async
 {
-    public abstract class Region
+    public sealed class TachyonCancellationTokenSource
     {
-        private ImmutableDictionary<ByteKey, ICell> activeCells = ImmutableDictionary<ByteKey, ICell>.Empty;
+        public CancellationToken Token { get; }
     }
 }

@@ -127,6 +127,8 @@ namespace Tachyon.Actors
     [Immutable]
     public sealed class Local<B> : Var<B> where B : class, IBinding
     {
+        public ByteKey Region { get; }
+
         private static ByteKey ConstructKey(ByteKey region, ByteKey key)
         {
             var regionLength = region.Bytes.Length;
@@ -148,9 +150,9 @@ namespace Tachyon.Actors
         }
 
         public Local(ByteKey region, ByteKey key)
-            : base(KeyspaceType.Local, ConstructKey(region, key))
+            : base(KeyspaceType.Local, key)
         {
-
+            Region = region;
         }
 
         /// <inheritdoc cref="Var{M}"/>

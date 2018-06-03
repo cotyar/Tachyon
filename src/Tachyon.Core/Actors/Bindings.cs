@@ -38,10 +38,10 @@ namespace Tachyon.Actors
     /// <summary>
     /// Channels are binding versions working in the context of actors.
     /// </summary>
-    /// <typeparam name="M"></typeparam>
-    public interface IChannel<M> : IBinding
+    /// <typeparam name="M">Type of message to send.</typeparam>
+    public interface IChannel<in M> : IBinding
     {
-        void Send<M>(M message);
+        void Send(M message);
         void Signal(ISignal signal);
     }
 }

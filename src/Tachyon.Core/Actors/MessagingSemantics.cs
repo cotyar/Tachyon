@@ -19,7 +19,7 @@ namespace Tachyon.Actors
     /// </summary>
     public interface ISilient { }
 
-    public sealed class DeadLetter : IEquatable<DeadLetter>
+    public sealed class DeadLetter : IEquatable<DeadLetter>, ISilient
     {
         public IAddressable Receiver { get; }
         public object Message { get; }

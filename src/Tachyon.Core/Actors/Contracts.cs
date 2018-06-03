@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Tachyon.Core;
+using Tachyon.Core.Async;
 
 namespace Tachyon.Actors
 {
@@ -164,8 +165,6 @@ namespace Tachyon.Actors
         TaskScheduler TaskScheduler { get; }
         Var<IChannel<DeadLetter>> DeadLetters { get; }
 
-        Task StartAsync(CancellationToken token = default(CancellationToken));
-
         /// <summary>
         /// Resolves a <paramref name="binding"/> for a given <paramref name="var"/>
         /// identifier of either <see cref="Local{B}"/> or <see cref="Global{B}"/>
@@ -175,5 +174,9 @@ namespace Tachyon.Actors
         /// <param name="var"></param>
         /// <param name="binding"></param>
         void ResolveBinding<B>(Var<B> var, out B binding) where B : class, IBinding;
+
+        TachyonCancellationTokenSource GetCancellationTokenSource();
+
+        Task Delay(TimeSpan delay, CancellationToken token = default);
     }
 }
